@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>明信片管理</title>
+  <style>
+    body { background: #f0f0f0; font-family: Arial; padding: 2rem; max-width: 600px; margin: auto; }
+    form { display: grid; gap: 1rem; }
+    input, textarea, button { padding: 0.5rem; font-size: 1rem; }
+    button { background: #0078d4; color: white; border: none; cursor: pointer; }
+    #status { color: green; }
+  </style>
+</head>
+<body>
+  <h1>上传新明信片</h1>
+  <form id="uploadForm">
+    <label>标题: <input type="text" id="title" required></label>
+    <label>描述: <textarea id="description" required></textarea></label>
+    <label>正面照片: <input type="file" id="frontFile" accept="image/*" required></label>
+    <button type="button" onclick="uploadPostcard()">上传</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    // 替换成你的 Apps Script Web 应用 URL
+    const scriptUrl = 'https://script.google.com/macros/s/你的AppsScript部署ID/exec';
+
+    async function uploadPostcard() {
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const frontFile = document.getElementById('frontFile').files[0];
+      const status = document.getElementById('status');
+
+      if (!frontFile) {
+        status.textContent = '请选择照片';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        const data = {
+          title,
+          description,
+          filename: frontFile.name,
+          mimeType: frontFile.type,
+          base64
+        };
+
+        try {
+          const response = await fetch(scriptUrl, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const result = await response.json();
+          status.textContent = result.status === 'success' ? '上传成功！刷新展示页查看。' : '错误: ' + result.message;
+        } catch (error) {
+          status.textContent = '上传失败: ' + error.message;
+        }
+      };
+      reader.readAsDataURL(frontFile);
+    }
+  </script>
+</body>
+</html>

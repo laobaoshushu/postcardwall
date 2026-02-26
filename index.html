@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>明信片墙 · 2026 回忆</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background: #0d1b2a; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    h1 { text-align: center; margin-bottom: 2rem; font-size: 2.8rem; letter-spacing: 4px; color: #f4f1de; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+    .wall { columns: 320px; column-gap: 1.2rem; width: 100%; max-width: 1800px; margin: 0 auto; }
+    .postcard { break-inside: avoid; margin-bottom: 1.2rem; perspective: 1000px; cursor: pointer; }
+    .postcard-inner { position: relative; width: 100%; padding-top: 133.33%; transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); transform-style: preserve-3d; box-shadow: 0 10px 30px rgba(0,0,0,0.6); border-radius: 12px; overflow: hidden; }
+    .postcard.flipped .postcard-inner { transform: rotateY(180deg); }
+    .front, .back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; }
+    .front { background: #fff; }
+    .front img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .back { background: linear-gradient(135deg, #f4f1de, #e07a5f); color: #2d2d2d; transform: rotateY(180deg); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; text-align: center; font-size: 1.1rem; }
+    .back h2 { margin-bottom: 1rem; font-size: 1.6rem; }
+    .back p { line-height: 1.5; }
+    @media (min-width: 800px) { .wall { columns: 400px; } }
+    @media (min-width: 1200px) { .wall { columns: 450px; } }
+  </style>
+</head>
+<body>
+  <h1>2026 · 我们的明信片墙</h1>
+  <div class="wall" id="wall"></div>
+
+  <script>
+    // 替换成你的 Apps Script Web 应用 URL（从 Google Apps Script 部署获取）
+    const apiUrl = 'https://script.google.com/macros/s/你的AppsScript部署ID/exec';
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        const wall = document.getElementById('wall');
+        data.forEach(card => {
+          const postcard = document.createElement('div');
+          postcard.className = 'postcard';
+          postcard.onclick = () => postcard.classList.toggle('flipped');
+          postcard.innerHTML = `
+            <div class="postcard-inner">
+              <div class="front">
+                <img src="https://drive.google.com/uc?export=view&id=${card.photoId}" alt="${card.title}">
+              </div>
+              <div class="back">
+                <h2>${card.title}</h2>
+                <p>${card.description}</p>
+              </div>
+            </div>
+          `;
+          wall.appendChild(postcard);
+        });
+      })
+      .catch(error => console.error('加载数据失败:', error));
+  </script>
+</body>
+</html>
